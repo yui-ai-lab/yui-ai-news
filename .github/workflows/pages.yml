@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "apps/**"
       - ".github/scripts/security_check.py"
       - ".github/workflows/pages.yml"
 
@@ -27,6 +28,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Include standalone calculator in public site
+        run: |
+          mkdir -p site/break-even
+          cp -R apps/break-even/. site/break-even/
 
       - name: Scan public site for secrets and unsafe files
         run: python3 .github/scripts/security_check.py site
