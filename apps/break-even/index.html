@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f4f8fb">
+<meta name="description" content="固定費・変動費を項目別に追加削除できる無料の損益分岐点シミュレーター。月商、必要客数、利益とグラフを自動計算。">
+<title>損益分岐点シミュレーター</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;color:#183048;background:#f3f7fa}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#dfeff5 0,transparent 36%),#f3f7fa;font-size:14px}input,button{font:inherit}
+.wrap{max-width:1100px;margin:auto;padding:0 16px 48px}.mast{background:#142f46;color:#fff;padding:34px max(18px,calc((100vw - 1068px)/2)) 28px}.eyebrow{font-size:11px;font-weight:800;color:#83dbcc;letter-spacing:2px}.mast h1{font-size:clamp(26px,4vw,36px);letter-spacing:-.04em;line-height:1.3;margin:10px 0 8px}.mast p{font-size:13px;color:#c2d5e2;margin:0}
+.layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}
+.card{background:white;border:1px solid #dfe7ed;border-radius:16px;box-shadow:0 6px 24px #19354f0a;padding:22px;min-width:0}.wide{grid-column:1/-1}
+.result{background:#e4f5ef;border-color:#bee7da}.result .toplabel{font-size:12px;color:#407b6c;font-weight:800}.big{font-size:clamp(30px,5vw,46px);color:#134b42;font-weight:850;letter-spacing:-.045em;margin:2px 0 18px;line-height:1.25}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{background:#ffffffb5;border-radius:10px;padding:13px;min-width:0}.stat span{display:block;color:#5b7980;font-size:11px;margin-bottom:5px}.stat strong{font-size:clamp(15px,2.4vw,20px);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}.head h2{font-size:17px;margin:0}.head .total{color:#166b60;font-size:17px;font-weight:800}.hint{font-size:11px;color:#7c90a0;margin:0 0 15px}
+.columnLabels,.item{display:grid;grid-template-columns:minmax(0,1fr) minmax(95px,130px) 36px;gap:8px;align-items:center}.columnLabels{font-size:11px;color:#8a9aab;margin-bottom:7px}.item{margin-bottom:9px}.item input,.field input{display:block;min-width:0;width:100%;height:42px;border:1px solid #d9e2e9;border-radius:8px;background:#fff;color:#183048;padding:8px 10px;outline:0}.item input:focus,.field input:focus{border-color:#0a9887;box-shadow:0 0 0 3px #0a98871c}.amount{position:relative}.amount input{padding-right:27px;text-align:right;font-variant-numeric:tabular-nums}.amount .unit{position:absolute;right:8px;top:12px;font-size:11px;color:#93a0ac;pointer-events:none}
+.remove{height:42px;border:1px solid #e0e6ec;border-radius:8px;background:#fff;color:#a6b0ba;cursor:pointer;font-size:20px}.remove:hover{color:#c34d4d;background:#fff4f4}
+.add{width:100%;padding:13px 10px;background:#eef9f6;border:1px dashed #8fd0c3;color:#117568;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;margin-top:5px}.add:hover{background:#def4ec}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field label{display:block;color:#6a7e8d;font-size:12px;font-weight:700;margin-bottom:6px}.field input{text-align:right;font-variant-numeric:tabular-nums}.field small{color:#92a0ad}
+.legend{display:flex;gap:18px;color:#718294;font-size:11px;margin-top:6px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}.chart{width:100%;height:auto;display:block}.note{font-size:12px;color:#5e7588;margin-top:12px;line-height:1.7}.warn{color:#b94646;font-size:13px;display:none;margin-top:10px}.status{font-size:13px;color:#36556c;background:#f3f8fc;border-radius:9px;padding:12px 14px;margin-top:14px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}.small{font-size:11px;color:#8092a1}.copy,.reset{cursor:pointer;border-radius:9px;padding:10px 16px;font-size:12px;font-weight:700}.copy{background:#153e57;color:white;border:0}.reset{background:white;color:#6b7c8d;border:1px solid #d6e0e9}.foot{font-size:11px;line-height:1.7;color:#8592a0;margin-top:18px}
+@media(max-width:690px){.layout{grid-template-columns:1fr;gap:12px}.wide{grid-column:auto}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:17px}.mast{padding:28px 18px}.wrap{padding:0 12px 32px}}
+@media(max-width:355px){.item,.columnLabels{grid-template-columns:minmax(0,1fr) 88px 32px;gap:5px}.stats{gap:6px}.stat{padding:9px}}
+</style></head><body>
+<header class="mast"><div class="eyebrow">BUSINESS TOOL / 01</div><h1>損益分岐点<br>シミュレーター</h1><p>費用の内訳を整理して、黒字に必要な売上を見つけよう。</p></header>
+<main class="wrap"><div class="layout">
+<section class="card wide result" aria-live="polite"><div class="toplabel">月間損益分岐点売上</div><div class="big" id="breakEven">計算中…</div>
+<div class="stats"><div class="stat"><span>1日の必要売上</span><strong id="daily">−</strong></div><div class="stat"><span>1日の必要客数</span><strong id="guests">−</strong></div><div class="stat"><span>現在の月間損益</span><strong id="profit">−</strong></div><div class="stat"><span>目標利益に必要な月商</span><strong id="target">−</strong></div></div><div class="warn" id="warning"></div></section>
+<section class="card"><div class="head"><h2>🏠 固定費</h2><span class="total" id="fixedTotal"></span></div><p class="hint">毎月、売上と関係なく発生する費用</p><div class="columnLabels"><span>項目名</span><span>月額（円）</span><span></span></div><div id="fixedRows"></div><button class="add" type="button" data-add="fixed">＋ 固定費を追加</button></section>
+<section class="card"><div class="head"><h2>🥬 変動費</h2><span class="total" id="variableTotal"></span></div><p class="hint">売上に対する割合で入力</p><div class="columnLabels"><span>項目名</span><span>売上比率（%）</span><span></span></div><div id="variableRows"></div><button class="add" type="button" data-add="variable">＋ 変動費を追加</button></section>
+<section class="card"><div class="head"><h2>📋 売上・営業条件</h2></div><p class="hint">数字を変えると計算結果が即座に更新されます</p><div class="fields">
+<div class="field"><label for="ticket">平均客単価（円）</label><input type="number" id="ticket" min="1" inputmode="decimal"></div>
+<div class="field"><label for="days">月の営業日数（日）</label><input type="number" id="days" min="1" max="31" inputmode="numeric"></div>
+<div class="field"><label for="sales">現在の月商（円）</label><input type="number" id="sales" min="0" inputmode="decimal"></div>
+<div class="field"><label for="goal">目標月間利益（円）</label><input type="number" id="goal" min="0" inputmode="decimal"></div></div>
+<div class="status" id="status">損益分岐点を計算しています</div></section>
+<section class="card"><div class="head"><h2>📈 売上と総費用</h2></div><p class="hint">2本の線が交わる場所が損益分岐点です</p><svg id="chart" class="chart" viewBox="0 0 600 235" role="img" aria-label="売上と総費用のグラフ"></svg>
+<div class="legend"><span><i style="background:#2d63c5"></i>売上</span><span><i style="background:#dc8568"></i>総費用</span></div><div class="note" id="margin"></div></section>
+<section class="wide"><div class="actions"><span class="small" id="saveStatus">入力値をこのブラウザに保存します</span><div><button class="reset" type="button" id="reset">初期値に戻す</button> <button class="copy" type="button" id="copy">計算結果をコピー</button></div></div>
+<div class="foot">固定費は月額、変動費は売上比率（％）で入力してください。消費税・借入元金返済・設備投資などは別途考慮が必要です。会計上の利益や資金繰りと完全には一致しません。入力した値は同じ端末・ブラウザでのみ保持されます。</div></section>
+</div></main>
+<script>
+(function(){
+"use strict";
+var storage="yui-break-even-webpage-v1";
+var initial={fixed:[{name:"家賃",value:"350000"},{name:"人件費",value:"400000"},{name:"光熱費・通信費",value:"70000"},{name:"その他固定費",value:"80000"}],variable:[{name:"食材・材料原価",value:"30"},{name:"決済手数料",value:"3"},{name:"包装・消耗品",value:"2"}],ticket:"1500",days:"26",sales:"1200000",goal:"200000"};
+var seq=0;
+function id(){return "i"+Date.now()+"-"+(++seq)}
+function fresh(){return {fixed:initial.fixed.map(function(x){return {id:id(),name:x.name,value:x.value}}),variable:initial.variable.map(function(x){return {id:id(),name:x.name,value:x.value}}),ticket:initial.ticket,days:initial.days,sales:initial.sales,goal:initial.goal}}
+var st=fresh();
+try {var saved=JSON.parse(localStorage.getItem(storage));if(saved&&Array.isArray(saved.fixed)&&Array.isArray(saved.variable)){st={fixed:saved.fixed.slice(0,100).map(function(x){return {id:id(),name:String(x.name||""),value:String(x.value==null?"":x.value)}}),variable:saved.variable.slice(0,100).map(function(x){return {id:id(),name:String(x.name||""),value:String(x.value==null?"":x.value)}}),ticket:String(saved.ticket),days:String(saved.days),sales:String(saved.sales),goal:String(saved.goal)}}}catch(err){}
+function el(name){return document.createElement(name)}
+function get(name){return document.getElementById(name)}
+function number(v,blankZero){if(v===""||v==null)return blankZero?0:NaN;return Number(v)}
+function fmt(v){return Number.isFinite(v)?Math.ceil(v-1e-9).toLocaleString("ja-JP"):"−"}
+function yen(v){return Number.isFinite(v)?(v<0?"−":"")+fmt(Math.abs(v))+"円":"−"}
+function percent(v){return Number.isFinite(v)?(Math.round(v*1000)/1000).toLocaleString("ja-JP")+"%":"−"}
+function persist(){try{localStorage.setItem(storage,JSON.stringify(st));get("saveStatus").textContent="✓ 入力内容はこのブラウザに自動保存されています"}catch(err){get("saveStatus").textContent="このブラウザでは自動保存できません"}}
+function render(kind){
+ var host=get(kind+"Rows");host.replaceChildren();
+ if(!st[kind].length){var e=el("p");e.className="hint";e.textContent="項目なし。下のボタンから追加できます。";host.appendChild(e)}
+ st[kind].forEach(function(v,idx){
+  var row=el("div");row.className="item";row.dataset.id=v.id;row.dataset.kind=kind;
+  var name=el("input");name.type="text";name.value=v.name;name.placeholder="項目名";name.maxLength=80;name.dataset.field="name";name.setAttribute("aria-label",(kind==="fixed"?"固定費":"変動費")+"項目名"+(idx+1));
+  var amount=el("div");amount.className="amount";
+  var inp=el("input");inp.type="number";inp.min="0";inp.step="any";inp.inputMode="decimal";inp.value=v.value;inp.dataset.field="value";inp.setAttribute("aria-label",(kind==="fixed"?"固定費月額":"変動費率")+(idx+1));
+  var unit=el("span");unit.className="unit";unit.textContent=kind==="fixed"?"円":"%";amount.append(inp,unit);
+  var del=el("button");del.type="button";del.className="remove";del.dataset.remove="1";del.textContent="×";del.setAttribute("aria-label","項目を削除");
+  row.append(name,amount,del);host.appendChild(row);
+ })
+}
+function calculate(){
+ var f=st.fixed.map(function(x){return number(x.value,true)});
+ var v=st.variable.map(function(x){return number(x.value,true)});
+ var fixed=f.reduce(function(a,b){return a+b},0),rate=v.reduce(function(a,b){return a+b},0);
+ var ticket=number(st.ticket),days=number(st.days),sales=number(st.sales),goal=number(st.goal);
+ get("fixedTotal").textContent=yen(fixed);
+ get("variableTotal").textContent=percent(rate);
+ var ok=f.concat(v,[ticket,days,sales,goal]).every(function(x){return Number.isFinite(x)&&x>=0})&&rate<100&&ticket>0&&days>=1&&days<=31&&Number.isInteger(days);
+ get("warning").style.display=ok?"none":"block";
+ if(!ok){get("warning").textContent="費用は0以上、変動費率合計は100%未満、客単価は1以上、営業日数は1〜31の整数で入力してね。";["breakEven","daily","guests","profit","target"].forEach(function(x){get(x).textContent="−"});get("status").textContent="数値を修正すると再計算します";get("margin").textContent="";get("chart").replaceChildren();return}
+ var m=1-rate/100,be=fixed/m,p=sales*m-fixed,target=(fixed+goal)/m;
+ get("breakEven").textContent=yen(be);
+ get("daily").textContent=yen(be/days);
+ get("guests").textContent=fmt(be/ticket/days)+"人";
+ get("profit").textContent=(p>=0?"+":"−")+yen(Math.abs(p));
+ get("profit").style.color=p>=0?"#0a856e":"#b64c4c";
+ get("target").textContent=yen(target);
+ get("margin").textContent="限界利益率 "+percent(m*100)+" ／ 月間必要客数 "+fmt(be/ticket)+"人";
+ get("status").textContent=fixed===0?"固定費が0円のため、限界利益が発生する時点から黒字です。":sales>=be?"🎉 現在の月商は損益分岐点を "+yen(sales-be)+" 上回っています。":"黒字化には、月商をあと "+yen(be-sales)+" 増やす必要があります。";
+ draw(be,fixed,rate/100,sales,target)
+}
+function draw(be,fixed,rate,sales,target){
+ var svg=get("chart");svg.replaceChildren();
+ var ns="http://www.w3.org/2000/svg",xmax=Math.max(100000,be*1.5,sales*1.18,target*1.1),ymax=Math.max(xmax,fixed+rate*xmax)*1.1;
+ var L=58,R=584,T=12,B=201;
+ function X(x){return L+x/xmax*(R-L)}function Y(y){return B-y/ymax*(B-T)}
+ function node(tag,attrs,label){var n=document.createElementNS(ns,tag);Object.keys(attrs).forEach(function(k){n.setAttribute(k,attrs[k])});if(label!=null)n.textContent=label;svg.appendChild(n);return n}
+ function line(x1,y1,x2,y2,c,w,dash){var opts={x1:x1,y1:y1,x2:x2,y2:y2,stroke:c,"stroke-width":w};if(dash)opts["stroke-dasharray"]=dash;node("line",opts)}
+ function axis(n){return n>=100000000?(n/100000000).toFixed(1)+"億":n>=10000?Math.round(n/10000)+"万":fmt(n)}
+ for(var i=0;i<=4;i++){var val=ymax*i/4;line(L,Y(val),R,Y(val),"#e7edf2",1);node("text",{x:L-6,y:Y(val)+4,"text-anchor":"end","font-size":10,fill:"#8998a5"},axis(val))}
+ for(var j=0;j<=4;j++){var n=xmax*j/4;node("text",{x:X(n),y:224,"text-anchor":"middle","font-size":10,fill:"#8998a5"},axis(n))}
+ line(L,Y(0),R,Y(xmax),"#2d63c5",3);line(L,Y(fixed),R,Y(fixed+rate*xmax),"#dc8568",3);
+ line(X(be),B,X(be),Y(be),"#139886",1.5,"4 4");node("circle",{cx:X(be),cy:Y(be),r:5,fill:"#118e81",stroke:"#fff","stroke-width":2});
+ var labelX=Math.max(L+1,Math.min(R-115,X(be)-51)),labelY=Math.max(T,Y(be)-30);
+ node("rect",{x:labelX,y:labelY,width:116,height:22,rx:7,fill:"#e1f5ed"});
+ node("text",{x:labelX+58,y:labelY+15,"text-anchor":"middle","font-size":10,"font-weight":700,fill:"#13756c"},"分岐点 "+axis(be)+"円")
+}
+function update(){persist();calculate()}
+["fixed","variable"].forEach(function(kind){
+ get(kind+"Rows").addEventListener("input",function(event){
+  var target=event.target,row=target.closest(".item");if(!row)return;
+  var item=st[kind].find(function(x){return x.id===row.dataset.id});if(!item||!target.dataset.field)return;
+  item[target.dataset.field]=target.value;update()
+ });
+ get(kind+"Rows").addEventListener("click",function(event){
+  var button=event.target.closest("button[data-remove]");if(!button)return;var row=button.closest(".item");
+  st[kind]=st[kind].filter(function(x){return x.id!==row.dataset.id});render(kind);update()
+ })
+});
+document.querySelectorAll("button[data-add]").forEach(function(button){button.addEventListener("click",function(){
+ var kind=button.dataset.add;if(st[kind].length>=100)return alert("最大100項目です");
+ var next={id:id(),name:kind==="fixed"?"新しい固定費":"新しい変動費",value:"0"};st[kind].push(next);render(kind);update();
+ var added=get(kind+"Rows").lastElementChild;if(added){added.scrollIntoView({behavior:"smooth",block:"nearest"});added.querySelector("input").focus()}
+})});
+["ticket","days","sales","goal"].forEach(function(k){get(k).value=st[k];get(k).addEventListener("input",function(){st[k]=this.value;update()})});
+get("reset").addEventListener("click",function(){if(!confirm("項目と入力金額を初期値に戻しますか？"))return;st=fresh();render("fixed");render("variable");["ticket","days","sales","goal"].forEach(function(k){get(k).value=st[k]});update()});
+get("copy").addEventListener("click",function(){
+ var fixed=st.fixed.reduce(function(a,x){return a+number(x.value,true)},0),rate=st.variable.reduce(function(a,x){return a+number(x.value,true)},0),m=1-rate/100;
+ if(!(m>0&&Number.isFinite(fixed)))return alert("数値を確認してね");
+ var lines=["【損益分岐点シミュレーション】","固定費"];
+ st.fixed.forEach(function(x){lines.push("・"+x.name+": "+yen(number(x.value,true)))});
+ lines.push("変動費率");st.variable.forEach(function(x){lines.push("・"+x.name+": "+percent(number(x.value,true)))});
+ lines.push("固定費合計: "+yen(fixed),"変動費率合計: "+percent(rate),"損益分岐点売上: "+yen(fixed/m),"1日の必要売上: "+get("daily").textContent,"1日の必要客数: "+get("guests").textContent,"現在の月間損益: "+get("profit").textContent,"目標利益に必要な月商: "+get("target").textContent);
+ var text=lines.join("\n");var btn=this;
+ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){btn.textContent="コピーしました ✓"},function(){fallback()})}else fallback();
+ function fallback(){var area=el("textarea");area.value=text;document.body.appendChild(area);area.select();try{document.execCommand("copy");btn.textContent="コピーしました ✓"}catch(e){btn.textContent="コピーできませんでした"}area.remove()}
+ setTimeout(function(){btn.textContent="計算結果をコピー"},2000)
+});
+render("fixed");render("variable");update();
+})();
+</script></body></html>
